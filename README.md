@@ -1,5 +1,15 @@
 # Example Service for Helm Charts
 
+## Table of Content
+
+- [Example Service for Helm Charts](#example-service-for-helm-charts)
+  - [Table of Content](#table-of-content)
+  - [Prerequisites](#prerequisites)
+  - [Build and Run in Local](#build-and-run-in-local)
+  - [Build and Publish Docker Image](#build-and-publish-docker-image)
+  - [Test Helm Chart](#test-helm-chart)
+  - [Run Helm Chart](#run-helm-chart)
+
 ## Prerequisites
 
 - [Docker](https://www.docker.com/)
@@ -18,16 +28,19 @@
 
 ## Build and Publish Docker Image
 
-- Run `make publish-frontend username=<docker hub username> version=<tag-version>`.
-- Run `make publish-backend username=<docker hub username> version=<tag-version>`.
-- Replace `<username>` and `<tag-version>` with your own value.
+Replace `<docker-hub-username>` and `<tag-version>` with your own value.
 
-## Test and Install Helm Chart
+- Run `make publish-frontend username=<docker-hub-username> version=<tag-version>`.
+- Run `make publish-backend username=<docker-hub-username> version=<tag-version>`.
+
+## Test Helm Chart
+
+You may need to adjust values in `chart/values.yaml` accordingly, e.g: `frontend.service.type` variable.
 
 - Test chart for non-production.
 
 ```bash
-make helm-test-nonprod
+make helm-check-nonprod
 ```
 
 ```yaml
@@ -113,7 +126,7 @@ spec:
   Before test new chart with same resources, make sure to uninstall the existing one using `helm uninstall chartname` e.g `helm uninstall chart-1586699279`
 
 ```bash
-make helm-test-prod
+make helm-check-prod
 ```
 
 ```yaml
@@ -246,49 +259,15 @@ spec:
 
 ```
 
+## Run Helm Chart
+
 - Run chart for non-production.
 
 ```bash
-> $ make helm-run-prod                                                                                                                             [±master ●]
-minikube start
-😄  minikube v1.9.2 on Darwin 10.15.4
-✨  Using the virtualbox driver based on existing profile
-👍  Starting control plane node m01 in cluster minikube
-🏃  Updating the running virtualbox "minikube" VM ...
-🐳  Preparing Kubernetes v1.18.0 on Docker 19.03.8 ...
-🌟  Enabling addons: default-storageclass, ingress, storage-provisioner
-🏄  Done! kubectl is now configured to use "minikube"
-helm lint ./chart
-==> Linting ./chart
-
-1 chart(s) linted, 0 chart(s) failed
-helm install --generate-name --set isProduction=true ./chart
-NAME: chart-1586699314
-LAST DEPLOYED: Sun Apr 12 20:48:35 2020
-NAMESPACE: default
-STATUS: deployed
-REVISION: 1
-TEST SUITE: None
-
+make helm-install-nonprod
 ```
 
-- Validate the list of running pods
-
 ```bash
-> $ kubectl get pods
-NAME                        READY   STATUS    RESTARTS   AGE
-backend-59884b5db5-2jsjc    1/1     Running   0          7m31s
-backend-59884b5db5-nsz9n    1/1     Running   0          7m31s
-frontend-5968587999-g2lvn   1/1     Running   0          7m31s
-frontend-5968587999-qlp7v   1/1     Running   0          7m31s
-```
-
-- Run chart for production
-
-  Before run new chart with same resources, make sure to uninstall the existing one using `helm uninstall chartname` e.g `helm uninstall chart-1586699279`
-
-```bash
-> $ make helm-run-nonprod                                                                                                                          [±master ●]
 minikube start
 😄  minikube v1.9.2 on Darwin 10.15.4
 ✨  Using the virtualbox driver based on existing profile
@@ -302,6 +281,51 @@ helm lint ./chart
 
 1 chart(s) linted, 0 chart(s) failed
 helm install --generate-name ./chart
+NAME: chart-1586699314
+LAST DEPLOYED: Sun Apr 12 20:48:35 2020
+NAMESPACE: default
+STATUS: deployed
+REVISION: 1
+TEST SUITE: None
+
+```
+
+- Validate the list of running pods
+
+```bash
+kubectl get pods
+```
+
+```bash
+NAME                        READY   STATUS    RESTARTS   AGE
+backend-59884b5db5-2jsjc    1/1     Running   0          7m31s
+backend-59884b5db5-nsz9n    1/1     Running   0          7m31s
+frontend-5968587999-g2lvn   1/1     Running   0          7m31s
+frontend-5968587999-qlp7v   1/1     Running   0          7m31s
+```
+
+- Run chart for production
+  
+  Before run new chart with same resources, make sure to uninstall the existing one using `helm uninstall chartname` e.g `helm uninstall chart-1586699279`
+
+```bash
+make helm-install-prod
+```
+
+```bash
+minikube start
+😄  minikube v1.9.2 on Darwin 10.15.4
+✨  Using the virtualbox driver based on existing profile
+👍  Starting control plane node m01 in cluster minikube
+🏃  Updating the running virtualbox "minikube" VM ...
+🐳  Preparing Kubernetes v1.18.0 on Docker 19.03.8 ...
+🌟  Enabling addons: default-storageclass, ingress, storage-provisioner
+🏄  Done! kubectl is now configured to use "minikube"
+helm lint ./chart
+==> Linting ./chart
+
+1 chart(s) linted, 0 chart(s) failed
+helm install --generate-name --set isProduction=true ./chart
 NAME: chart-1586699279
 LAST DEPLOYED: Sun Apr 12 20:48:00 2020
 NAMESPACE: default
@@ -313,7 +337,10 @@ TEST SUITE: None
 - Validate the list of running pods
 
 ```bash
-> $ kubectl get pods
+kubectl get pods
+```
+
+```bash
 NAME                        READY   STATUS        RESTARTS   AGE
 backend-59884b5db5-9t2mv    1/1     Running       0          10s
 backend-59884b5db5-fjpnn    1/1     Running       0          10s
@@ -326,17 +353,15 @@ frontend-5968587999-qlp7v   1/1     Terminating   0          13m
 - Get URL of frontend
 
 ```bash
-> $ minikube service list
-|-------------|------------|--------------|-----------------------------|
-|  NAMESPACE  |    NAME    | TARGET PORT  |             URL             |
-|-------------|------------|--------------|-----------------------------|
-| default     | backend    | No node port |
-| default     | frontend   |           80 | http://192.168.99.102:30000 |
-| default     | kubernetes | No node port |
-| kube-system | kube-dns   | No node port |
-|-------------|------------|--------------|-----------------------------|
+minikube service frontend
+```
 
-> $ minikube service frontend --url
-http://192.168.99.102:30000
+```bash
+|-----------|----------|-------------|-----------------------------|
+| NAMESPACE |   NAME   | TARGET PORT |             URL             |
+|-----------|----------|-------------|-----------------------------|
+| default   | frontend |          80 | http://192.168.99.102:30000 |
+|-----------|----------|-------------|-----------------------------|
+🎉  Opening service default/frontend in default browser...
 
 ```

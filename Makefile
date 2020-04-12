@@ -19,12 +19,12 @@ run-frontend:
 	python ./frontend/main.py
 
 publish-backend: docker-login backend
-	cd backend && docker build --rm  --no-cache -t franzramadhan/backend:${version} .
-	docker push franzramadhan/backend:${version}
+	cd backend && docker build --rm  --no-cache -t ${username}/backend:${version} .
+	docker push ${username}/backend:${version}
 
 publish-frontend: docker-login frontend
-	cd frontend && docker build --rm --no-cache -t franzramadhan/frontend:${version} .
-	docker push franzramadhan/frontend:${version}
+	cd frontend && docker build --rm --no-cache -t ${username}/frontend:${version} .
+	docker push ${username}/frontend:${version}
 
 helm-lint:
 	helm lint ./chart
@@ -32,14 +32,14 @@ helm-lint:
 helm-pack:
 	helm package ./chart
 
-helm-test-nonprod: minikube helm-lint
+helm-check-nonprod: minikube helm-lint
 	helm install --dry-run --debug --generate-name ./chart
 
-helm-test-prod: minikube helm-lint
+helm-check-prod: minikube helm-lint
 	helm install --dry-run --debug --generate-name --set isProduction=true ./chart
 
-helm-run-nonprod: minikube helm-lint
+helm-install-nonprod: minikube helm-lint
 	helm install --generate-name ./chart
 
-helm-run-prod: minikube helm-lint
+helm-install-prod: minikube helm-lint
 	helm install --generate-name --set isProduction=true ./chart

@@ -9,5 +9,10 @@ spec:
   - protocol: "TCP"
     port: 80
     targetPort: http
+{{- if eq .Values.frontend.service.type "NodePort" }}
     nodePort: 30000
   type: NodePort
+{{- end }}
+{{- if eq .Values.frontend.service.type "LoadBalancer" }}
+  type: LoadBalancer
+{{- end }}

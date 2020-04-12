@@ -6,6 +6,8 @@ frontend:
   maxReplicas: 10
   targetCPUUtilizationPercentage: 80
   targetMemoryUtilizationPercentage: 80
+  service:
+    type: NodePort # valid values [ LoadBalancer , NodePort ]
 
 backend:
   imageName: franzramadhan/backend
