@@ -1,0 +1,16 @@
+isProduction: false
+frontend:
+  imageName: franzramadhan/frontend
+  imageVersion: 0.1.0
+  minReplicas: 2
+  maxReplicas: 10
+  targetCPUUtilizationPercentage: 80
+  targetMemoryUtilizationPercentage: 80
+
+backend:
+  imageName: franzramadhan/backend
+  imageVersion: 0.1.0
+  minReplicas: 2
+  maxReplicas: 10
+  targetCPUUtilizationPercentage: 80
+  targetMemoryUtilizationPercentage: 80

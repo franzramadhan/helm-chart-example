@@ -1,0 +1,30 @@
+{{- if .Values.isProduction }}
+apiVersion: autoscaling/v2beta2
+kind: HorizontalPodAutoscaler
+metadata:
+  name: frontend
+spec:
+  scaleTargetRef:
+    apiVersion: apps/v1
+    kind: Deployment
+    name: frontend
+  minReplicas: {{ .Values.frontend.minReplicas }}
+  maxReplicas: {{ .Values.frontend.maxReplicas }}
+  metrics:
+    {{- with .Values.frontend.targetCPUUtilizationPercentage }}
+        - type: Resource
+          resource:
+            name: cpu
+            target:
+              type: Utilization
+              averageUtilization: {{ . }}
+    {{- end }}
+    {{- with .Values.frontend.targetMemoryUtilizationPercentage }}
+        - type: Resource
+          resource:
+            name: memory
+            target:
+              type: Utilization
+              averageUtilization: {{ . }}
+    {{- end }}
+{{- end }}

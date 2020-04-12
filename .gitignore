@@ -1,0 +1,7 @@
+go.sum
+main
+sample-helm
+*.pyc
+.idea/
+.vscode/
+*.tgz
